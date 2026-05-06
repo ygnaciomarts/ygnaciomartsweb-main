@@ -5,7 +5,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
-import { useState, useRef, useEffect } from "react";
+import HomeIcon from "@mui/icons-material/Home";
+import { useState, useRef, useEffect, useMemo } from "react";
 import cv from "./assets/cv-public.pdf";
 
 import mockupHome from "./assets/mockups/bandup-music/bandupmusic_home.png";
@@ -25,6 +26,9 @@ import educhime2 from "./assets/mockups/educhime/educhime_2.png";
 import educhimeProfile from "./assets/mockups/educhime/educhime_profile.png";
 
 const theme = createTheme({
+  typography: {
+    fontFamily: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  },
   palette: {
     mode: "light",
     text: {
@@ -93,15 +97,14 @@ function App() {
   const projectsRef = useRef<HTMLDivElement>(null);
   const mockupsRef = useRef<HTMLDivElement>(null);
   const cvRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLDivElement>(null);
 
-  const sectionRefs: Record<string, React.RefObject<HTMLDivElement | null>> = {
+  const sectionRefs = useMemo<Record<string, React.RefObject<HTMLDivElement | null>>>(() => ({
     Home: homeRef,
     About: aboutRef,
     Projects: projectsRef,
     Design: mockupsRef,
     CV: cvRef,
-  };
+  }), []);
 
   const isClickScrollingRef = useRef(false);
 
@@ -157,7 +160,7 @@ function App() {
     <Box
       sx={{
         color: "text.primary",
-        minHeight: "100vh",
+        height: "100vh",
         width: "100vw",
         display: {
           xs: "block",
@@ -170,14 +173,22 @@ function App() {
           md: "auto 1fr"
         },
         backgroundColor: "#fafafa",
-        backgroundImage: `
-          linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)
-        `,
-        backgroundSize: "40px 40px",
-        backgroundRepeat: "repeat",
-        overflowY: "auto",
-        animation: "moveBackgroundContinuous 6s linear infinite",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "fixed",
+          inset: 0,
+          backgroundImage: `
+            linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)
+          `,
+          backgroundSize: "40px 40px",
+          backgroundRepeat: "repeat",
+          animation: "moveBackgroundContinuous 6s linear infinite",
+          pointerEvents: "none",
+          zIndex: 0,
+        },
         "@keyframes moveBackgroundContinuous": {
           "0%": { backgroundPosition: "0 0, 0 0" },
           "100%": { backgroundPosition: "40px 40px, 40px 40px" },
@@ -198,17 +209,18 @@ function App() {
             sm: "fixed",
             md: "static"
           },
+          alignSelf: { xs: "auto", sm: "auto", md: "center" },
           left: { xs: "50%", sm: "50%", md: "auto" },
           bottom: { xs: 16, sm: 16, md: "auto" },
           top: { xs: "auto", sm: "auto", md: "auto" },
           zIndex: 1201,
           transformOrigin: { xs: "bottom center", sm: "bottom center", md: "none" },
-          m: { xs: 0, sm: 0, md: 8 },
-          mb: { xs: 2, sm: 2, md: 6 },
+          m: { xs: 0, sm: 0, md: 4, lg: 6, xl: 8 },
+          mb: { xs: 2, sm: 2, md: 4, lg: 5, xl: 6 },
           overscrollBehavior: "contain",
-          width: "auto",
-          px: { xs: 2, sm: 2, md: 0 },
-          maxWidth: { xs: "500px", sm: "500px", md: "none" },
+          width: { xs: "calc(100vw - 32px)", sm: "calc(100vw - 32px)", md: "auto" },
+          px: { xs: 1, sm: 1, md: 0 },
+          maxWidth: { xs: "400px", sm: "450px", md: "none" },
           transform: {
             xs: "translateX(-50%)",
             sm: "translateX(-50%)",
@@ -267,9 +279,9 @@ function App() {
               gap: 1,
               alignItems: { xs: "center", sm: "center", md: "flex-start" },
               width: { xs: "100%", sm: "100%", md: "auto" },
-              justifyContent: { xs: "space-between", sm: "space-between", md: "flex-start" },
-              overflowX: { xs: "auto", sm: "auto", md: "unset" },
-              px: 3,
+              justifyContent: { xs: "center", sm: "center", md: "flex-start" },
+              overflowX: { xs: "hidden", sm: "hidden", md: "unset" },
+              px: { xs: 1.5, sm: 2, md: 3 },
               py: 1,
             }}
           >
@@ -297,6 +309,9 @@ function App() {
                   textAlign: { xs: "center", sm: "center", md: "left" },
                   position: "relative",
                   justifyContent: { xs: "center", sm: "center", md: "flex-start" },
+                  minWidth: { xs: "auto", sm: "auto", md: 64 },
+                  width: { xs: "auto", sm: "auto", md: "100%" },
+                  px: { xs: 1.2, sm: 1.5, md: 2 },
                   transition: "all 0.2s ease",
                   "&:focus": {
                     outline: "none",
@@ -325,7 +340,12 @@ function App() {
                   },
                 }}
               >
-                {item}
+                {item === "Home" ? (
+                  <>
+                    <HomeIcon sx={{ fontSize: 18, display: { xs: "block", sm: "block", md: "none" } }} />
+                    <Box component="span" sx={{ display: { xs: "none", sm: "none", md: "inline" } }}>Home</Box>
+                  </>
+                ) : item}
               </Button>
             ))}
           </Box>
@@ -415,6 +435,7 @@ function App() {
           display: "grid",
           gridTemplateColumns: "1fr",
           justifyContent: "center",
+          px: { xs: 0, sm: 0, md: 1, lg: 3, xl: 5 },
           // Permitir que el contenido pase por debajo del navbar sticky-bottom/fixed
           pb: {
             xs: "calc(120px + env(safe-area-inset-bottom, 0px))",
@@ -481,11 +502,14 @@ function App() {
               </Box>
 
               {/* Presentación adicional */}
-              <Typography mt={2}>
-                Software Engineer focused on building scalable, user-centered digital experiences for enterprise platforms.
+              <Typography mt={2} sx={{ maxWidth: 600, textAlign: "center", lineHeight: 1.7 }}>
+                Software Engineer at John Deere, where I lead design system migrations and build the UI infrastructure behind manufacturing platforms serving factories worldwide.
               </Typography>
-              <Typography mt={1} sx={{ opacity: 0.8 }}>
-                Currently contributing to design systems, UI architecture, and front-end development at John Deere.
+              <Typography mt={1} sx={{ opacity: 0.8, maxWidth: 600, textAlign: "center" }}>
+                React · TypeScript · AWS · Fuel Design System · Node.js · Docker · CI/CD
+              </Typography>
+              <Typography mt={1} sx={{ opacity: 0.6, maxWidth: 600, textAlign: "center", fontSize: "0.85rem" }}>
+                3× ICPC Competitor · B.S. Computer Systems Engineering · Graduating July 2026
               </Typography>
             </Box>
           </Box>
@@ -499,20 +523,24 @@ function App() {
             >
               About
             </Typography>
-            <Typography mt={2}>
-              I am a Software Engineer with a strong focus on user experience, building digital solutions for enterprise manufacturing environments.
-              <br /><br />
-              I currently work at John Deere, where I collaborate with UX designers, product managers, and engineers to deliver scalable applications aligned with the Fuel Design System and manufacturing standards.
-              <br /><br />
-              My work focuses on design systems adoption, component-based architecture, and translating UX requirements into production-ready interfaces. I am particularly interested in creating consistent, accessible, and maintainable UI systems that improve usability at scale.
-              <br /><br />
-              I am motivated to continue growing at the intersection of product design and engineering, building systems that deliver real value to users.
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              I’m a Software Engineer Intern at John Deere since August 2024. I work directly with UX designers, product managers, and engineering teams to build and ship digital tools used in real manufacturing production lines.
             </Typography>
-            <Box mt={4} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Typography sx={{ fontWeight: 600 }}>Focused on:</Typography>
-              <Typography sx={{ opacity: 0.8 }}>• Design Systems</Typography>
-              <Typography sx={{ opacity: 0.8 }}>• UX-driven Development</Typography>
-              <Typography sx={{ opacity: 0.8 }}>• Scalable UI Architecture</Typography>
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              My main contribution has been leading the migration of large-scale manufacturing apps to Fuel Design System v6 — implementing a token-first architecture, replacing hard-coded UI values with semantic design tokens for spacing, color, and shape. I also authored 3 reusable components for the Manufacturing Component Library — purpose-built UI primitives tailored to manufacturing workflows that are now consumed by multiple teams across the organization.
+            </Typography>
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              Beyond code, I run adoption sessions to help other teams apply design system best practices, and I work closely with UX to translate wireframes and specs into production-ready components. I’ve also improved document upload workflows in a globally used app — enabling reliable handling of large files that previously caused failures.
+            </Typography>
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              I’m finishing my B.S. in Computer Systems Engineering at Instituto Tecnológico de La Laguna (graduating July 2026). Outside of work, I’ve competed in ICPC three years in a row and participated in a John Deere internal hackathon building a cloud-based assistant on Microsoft’s stack.
+            </Typography>
+            <Box mt={4} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              <Typography sx={{ fontWeight: 600 }}>What I focus on:</Typography>
+              <Typography sx={{ opacity: 0.8 }}>• Design system adoption & token-based theming</Typography>
+              <Typography sx={{ opacity: 0.8 }}>• Reusable component architecture for enterprise teams</Typography>
+              <Typography sx={{ opacity: 0.8 }}>• Translating UX specs into accessible, production-ready UI</Typography>
+              <Typography sx={{ opacity: 0.8 }}>• Cloud services (AWS Lambda, S3, API Gateway) & CI/CD</Typography>
             </Box>
           </Box>
 
@@ -529,17 +557,86 @@ function App() {
               BandUp Shop
             </Typography>
 
-            <Typography mt={1}>
-              BandUp Shop is a versatile and fully responsive e-commerce platform designed to support seamless product browsing and transactions across devices.
-              <br /><br />
-              The application was built with flexibility in mind, allowing it to support different types of products such as CDs, vinyl records, and other merchandise, while maintaining a consistent and intuitive shopping experience.
-              <br /><br />
-              It includes user-focused features such as account registration, session management, and a structured product catalog that improves navigation and discoverability.
-              <br /><br />
-              On the technical side, the platform integrates a secure database and backend logic to ensure reliable transactions, data consistency, and scalability, making it adaptable to different business needs.
-              <br /><br />
-              The overall design emphasizes clarity, responsiveness, and usability, ensuring that users can easily browse, select, and purchase products without friction.
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              A music-focused e-commerce site built with PHP, HTML, and CSS — my first full project where I handled everything from the visual design to the backend logic. Simple stack, but I owned the entire process: database schema, server-side rendering, layout, and styling.
             </Typography>
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              The store supports product browsing by category (vinyl, CDs, merch), a basic cart system with session handling in PHP, and user registration. The catalog pulls dynamically from a MySQL database, and the UI was hand-crafted with vanilla CSS — no frameworks.
+            </Typography>
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              I also designed the entire visual identity and user interface from scratch: color palette, typography, page layouts, and product card styles. It was a foundational project that taught me how to think about both the user-facing experience and the server-side logic simultaneously.
+            </Typography>
+
+            <Box mt={3} sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {["PHP", "HTML", "CSS", "MySQL", "UI Design"].map((tech) => (
+                <Box
+                  key={tech}
+                  sx={{
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: 2,
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
+                    background: "rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                  }}
+                >
+                  {tech}
+                </Box>
+              ))}
+            </Box>
+
+            <Box
+              sx={{
+                mt: 3,
+                width: "100%",
+                height: { xs: "50vh", md: "70vh" },
+                borderRadius: 3,
+                overflow: "hidden",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                border: "1px solid rgba(0,0,0,0.08)",
+                background: "#fff",
+                position: "relative",
+              }}
+            >
+              <Button
+                component="a"
+                href="https://bandup.ygnaciomarts.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  zIndex: 10,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+                  borderRadius: 2,
+                  color: "#000",
+                  textTransform: "none",
+                  fontWeight: 600,
+                  px: 2,
+                  py: 0.8,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    background: "rgba(255,255,255,0.85)",
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+                    transform: "translateY(-1px)",
+                  },
+                }}
+              >
+                Open in new tab ↗
+              </Button>
+              <iframe
+                src="https://bandup.ygnaciomarts.com"
+                title="BandUp Shop Live Preview"
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+              />
+            </Box>
           </Box>
 
 
@@ -558,14 +655,14 @@ function App() {
                   BandUp Music
                 </Typography>
 
-                <Typography mt={1}>
-                  BandUp Music is a user-centered music platform designed to deliver a seamless browsing experience across devices.
-                  <br /><br />
-                  The design focuses on clarity, hierarchy, and interaction patterns that allow users to easily explore music, artist profiles, and playlists.
-                  Special attention was given to layout consistency, spacing systems, and reusable UI structures.
-                  <br /><br />
-                  The project also includes structured HTML and CSS guidelines that support scalability and maintainability,
-                  ensuring that the interface can evolve without losing consistency.
+                <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+                  Complete product design of a music streaming platform — covering information architecture, user flows, interaction design, and high-fidelity UI mockups delivered in Figma with a fully documented component system.
+                </Typography>
+                <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+                  I designed the full navigation hierarchy, artist and album detail cards, the persistent music player, queue management, and multi-step search flows with contextual results. Every screen follows a documented spacing scale, type ramp, and color system — engineered so any developer can implement pixel-perfect layouts without interpretation.
+                </Typography>
+                <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+                  The project includes a comprehensive style guide with production-ready HTML/CSS patterns, grid specifications, responsive breakpoints, and component anatomy diagrams. It's structured not just as a reference, but as a living document that explains the reasoning behind each design decision.
                 </Typography>
 
                 {/* Slidecase */}
@@ -690,7 +787,7 @@ function App() {
                     display: "grid",
                     gridTemplateColumns: { xs: "1fr", md: "1.2fr 0.8fr" },
                     gap: 3,
-                    alignItems: "stretch"
+                    alignItems: "stretch",
                   }}
                 >
                   {/* PDF */}
@@ -698,21 +795,19 @@ function App() {
                     sx={{
                       width: "100%",
                       height: { xs: "60vh", md: "80vh" },
-                      display: "flex"
+                      display: "flex",
+                      borderRadius: 4,
+                      overflow: "hidden",
+                      background: "rgba(255,255,255,0.6)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(0,0,0,0.08)",
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                      p: 1.5,
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: "100%",
-                        borderRadius: 3,
-                        overflow: "hidden",
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                        border: "1px solid rgba(0,0,0,0.08)",
-                        background: "#fff"
-                      }}
-                    >
+                    <Box sx={{ width: "100%", borderRadius: 2.5, overflow: "hidden", background: "#fff" }}>
                       <iframe
-                        src={`${bandupGuide}#view=FitH`}
+                        src={`${bandupGuide}#toolbar=0&view=FitH`}
                         title="BandUp Guide"
                         width="100%"
                         height="100%"
@@ -740,12 +835,12 @@ function App() {
                       Guidelines
                     </Typography>
 
-                    <Typography sx={{ opacity: 0.8 }}>
-                      This document outlines the design principles, layout systems, and UI patterns used throughout BandUp Music.
+                    <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
+                      A structured design reference covering the grid system, 8px spacing scale, color tokens, typography hierarchy, and reusable component patterns that govern BandUp Music's visual language.
                     </Typography>
 
-                    <Typography sx={{ opacity: 0.8 }}>
-                      It includes structured HTML and CSS guidelines, spacing systems, and reusable components designed to ensure consistency and scalability across the platform.
+                    <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
+                      Includes production-ready HTML/CSS code snippets, responsive layout recipes, interaction state definitions, and annotated rationale behind every pattern — built for handoff to engineering teams.
                     </Typography>
                   </Box>
                 </Box>
@@ -757,17 +852,14 @@ function App() {
                   EduChime
                 </Typography>
 
-                <Typography sx={{ opacity: 0.85 }}>
-                  EduChime is a platform designed to help users manage reminders and track important academic activities.
-                  The goal was to provide a simple and reliable system that supports students in staying organized
-                  throughout their semester.
-                  <br /><br />
-                  The interface was designed with clarity and usability in mind, focusing on reducing friction when
-                  creating reminders, reviewing schedules, and receiving notifications. The experience prioritizes
-                  accessibility and adaptability across devices.
-                  <br /><br />
-                  The overall design balances simplicity with functionality, ensuring that users can quickly understand
-                  and interact with the platform without unnecessary complexity.
+                <Typography sx={{ opacity: 0.85, lineHeight: 1.8 }}>
+                  A mobile-first academic reminder app with a visual identity inspired by Just Dance 2019 — vibrant gradients, bold typography, and high-energy color pairings adapted into a functional productivity context. Built to the professor's requirements but with a distinct personality.
+                </Typography>
+                <Typography mt={2} sx={{ opacity: 0.85, lineHeight: 1.8 }}>
+                  The core UX goal was speed: a 2-tap flow to create a new reminder, a semester-aware calendar view, push notifications timed to the student's schedule, and a profile with completion history. Every interaction was designed to minimize friction for someone checking their phone between classes.
+                </Typography>
+                <Typography mt={2} sx={{ opacity: 0.85, lineHeight: 1.8 }}>
+                  The visual design balances the energetic Just Dance aesthetic with readability and clarity — bold enough to feel engaging, restrained enough that a stressed student can scan what's due in under 3 seconds without visual overload.
                 </Typography>
 
                 <Box
@@ -871,28 +963,26 @@ function App() {
                 display: "grid",
                 gridTemplateColumns: { xs: "1fr", md: "1.2fr 0.8fr" },
                 gap: 3,
-                alignItems: "stretch"
+                alignItems: "stretch",
               }}
             >
               <Box
                 sx={{
                   width: '100%',
                   height: { xs: "60vh", md: "80vh" },
-                  display: "flex"
+                  display: "flex",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                  p: 1.5,
                 }}
               >
-                <Box
-                  sx={{
-                    width: '100%',
-                    borderRadius: 3,
-                    overflow: 'hidden',
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    background: "#fff"
-                  }}
-                >
+                <Box sx={{ width: "100%", borderRadius: 2.5, overflow: "hidden", background: "#fff" }}>
                   <iframe
-                    src={`${cv}#view=FitH`}
+                    src={`${cv}#toolbar=0&view=FitH`}
                     title="CV Preview"
                     width="100%"
                     height="100%"
@@ -917,18 +1007,18 @@ function App() {
                 >
                   Resume
                 </Typography>
-                <Typography sx={{ opacity: 0.8 }}>
-                  This resume highlights my experience in front-end engineering, design systems, and UX-driven development within enterprise environments.
+                <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
+                  Covers my professional experience leading design system migrations and building enterprise UI at John Deere, alongside independent full-stack and UX design projects that demonstrate end-to-end product thinking.
                 </Typography>
-                <Typography sx={{ opacity: 0.8 }}>
-                  My work focuses on building scalable UI architectures, collaborating with cross-functional teams, and delivering consistent, user-centered experiences aligned with modern design systems.
+                <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
+                  Also includes three years of ICPC competitive programming, a hackathon-winning cloud assistant project, and technical depth across React, TypeScript, AWS, Docker, Kubernetes, and CI/CD automation.
                 </Typography>
               </Box>
             </Box>
           </Box>
 
           <Dialog
-            open={false}
+            open={openContact}
             onClose={() => setOpenContact(false)}
             fullWidth
             maxWidth="sm"
