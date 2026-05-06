@@ -503,7 +503,7 @@ function App() {
 
               {/* Presentación adicional */}
               <Typography mt={2} sx={{ maxWidth: 600, textAlign: "center", lineHeight: 1.7 }}>
-                Software Engineer at John Deere, where I lead design system migrations and build the UI infrastructure behind manufacturing platforms serving factories worldwide.
+                Software Engineer Intern at John Deere, where I lead design system migrations and build the UI infrastructure behind manufacturing platforms serving factories worldwide.
               </Typography>
               <Typography mt={1} sx={{ opacity: 0.8, maxWidth: 600, textAlign: "center" }}>
                 React · TypeScript · AWS · Fuel Design System · Node.js · Docker · CI/CD
