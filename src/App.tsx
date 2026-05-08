@@ -637,6 +637,99 @@ function App() {
                 style={{ border: "none" }}
               />
             </Box>
+
+                        <Typography
+              variant="h5"
+              fontWeight={700}
+              gutterBottom
+              sx={{ textTransform: "uppercase", letterSpacing: 2, fontSize: "1.2rem" }}
+            >
+              Projects
+            </Typography>
+            <Typography variant="h4" fontWeight={600}>
+              BandUp Shop 2.0
+            </Typography>
+
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              A modern music e-commerce platform built with React, Vite, and Material-UI — a complete rewrite of my original PHP project, now featuring a responsive SPA architecture deployed on Vercel. This version showcases modern frontend development with component-based architecture, state management, and optimized performance.
+            </Typography>
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              The store supports advanced product browsing with real-time search and filtering, a sophisticated cart system with React Context, user authentication with JWT tokens, and admin dashboard functionality. The catalog integrates with a REST API backend, featuring lazy loading, optimistic updates, and a polished UI built with Material-UI components.
+            </Typography>
+            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
+              I designed the entire user experience from scratch: modern color palette, typography system, responsive layouts, and interactive components. This project demonstrates full-stack JavaScript development, API integration, deployment automation, and modern web development best practices.
+            </Typography>
+
+            <Box mt={3} sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {["PHP", "HTML", "CSS", "MySQL", "UI Design"].map((tech) => (
+                <Box
+                  key={tech}
+                  sx={{
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: 2,
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
+                    background: "rgba(0,0,0,0.06)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                  }}
+                >
+                  {tech}
+                </Box>
+              ))}
+            </Box>
+
+            <Box
+              sx={{
+                mt: 3,
+                width: "100%",
+                height: { xs: "50vh", md: "70vh" },
+                borderRadius: 3,
+                overflow: "hidden",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                border: "1px solid rgba(0,0,0,0.08)",
+                background: "#fff",
+                position: "relative",
+              }}
+            >
+              <Button
+                component="a"
+                href="https://new-bandup.ygnaciomarts.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  zIndex: 10,
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+                  borderRadius: 2,
+                  color: "#000",
+                  textTransform: "none",
+                  fontWeight: 600,
+                  px: 2,
+                  py: 0.8,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    background: "rgba(255,255,255,0.85)",
+                    boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+                    transform: "translateY(-1px)",
+                  },
+                }}
+              >
+                Open in new tab ↗
+              </Button>
+              <iframe
+                src="https://new-bandup.ygnaciomarts.com"
+                title="BandUp Shop Live Preview"
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+              />
+            </Box>
           </Box>
 
 
