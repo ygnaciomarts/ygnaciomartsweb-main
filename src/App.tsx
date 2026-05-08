@@ -637,15 +637,9 @@ function App() {
                 style={{ border: "none" }}
               />
             </Box>
+            </Box>
 
-                        <Typography
-              variant="h5"
-              fontWeight={700}
-              gutterBottom
-              sx={{ textTransform: "uppercase", letterSpacing: 2, fontSize: "1.2rem" }}
-            >
-              Projects
-            </Typography>
+            <Box ref={projectsRef} sx={{ py: 10, px: 3 }}>
             <Typography variant="h4" fontWeight={600}>
               BandUp Shop 2.0
             </Typography>
