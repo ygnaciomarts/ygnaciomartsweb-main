@@ -639,7 +639,7 @@ function App() {
             </Box>
             </Box>
 
-            <Box ref={projectsRef} sx={{ py: 10, px: 3 }}>
+            <Box ref={projectsRef} sx={{ py: 10, px: 3, pt: 0 }}>
             <Typography variant="h4" fontWeight={600}>
               BandUp Shop 2.0
             </Typography>
