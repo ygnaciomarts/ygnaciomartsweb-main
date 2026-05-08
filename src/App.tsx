@@ -654,25 +654,6 @@ function App() {
               I designed the entire user experience from scratch: modern color palette, typography system, responsive layouts, and interactive components. This project demonstrates full-stack JavaScript development, API integration, deployment automation, and modern web development best practices.
             </Typography>
 
-            <Box mt={3} sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {["PHP", "HTML", "CSS", "MySQL", "UI Design"].map((tech) => (
-                <Box
-                  key={tech}
-                  sx={{
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: 2,
-                    fontSize: "0.8rem",
-                    fontWeight: 500,
-                    background: "rgba(0,0,0,0.06)",
-                    border: "1px solid rgba(0,0,0,0.08)",
-                  }}
-                >
-                  {tech}
-                </Box>
-              ))}
-            </Box>
-
             <Box
               sx={{
                 mt: 3,
