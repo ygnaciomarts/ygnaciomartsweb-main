@@ -1,1220 +1,588 @@
-import { Box, Typography, Avatar, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, ThemeProvider, createTheme, CssBaseline } from "@mui/material";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import CloseIcon from "@mui/icons-material/Close";
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
-import HomeIcon from "@mui/icons-material/Home";
-import { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Chip,
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  useMediaQuery,
+  Avatar,
+  Button,
+} from "@mui/material";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import MailIcon from "@mui/icons-material/Mail";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import DesignServicesIcon from "@mui/icons-material/DesignServices";
+
 import cv from "./assets/cv-public.pdf";
 
-import mockupHome from "./assets/mockups/bandup-music/bandupmusic_home.png";
-import mockupS2 from "./assets/mockups/bandup-music/bandupmusic_s2.png";
-import mockupS3 from "./assets/mockups/bandup-music/bandupmusic_s3.png";
-import mockupS4 from "./assets/mockups/bandup-music/bandupmusic_s4.png";
-import mockupS5 from "./assets/mockups/bandup-music/bandupmusic_s5.png";
-import mockupS6 from "./assets/mockups/bandup-music/bandupmusic_s6.png";
-import mockupS7 from "./assets/mockups/bandup-music/bandupmusic_s7.png";
-import mockupWelcome from "./assets/mockups/bandup-music/bandupmusic_welcome.png";
+function Portfolio() {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const [mode, setMode] = useState<"light" | "dark">(prefersDarkMode ? "dark" : "light");
 
-import bandupGuide from "./assets/mockups/bandup-music/bandupmusic_guide.pdf";
+  useEffect(() => {
+    setMode(prefersDarkMode ? "dark" : "light");
+  }, [prefersDarkMode]);
 
-import educhimeHome from "./assets/mockups/educhime/educhime_home.jpg";
-import educhime1 from "./assets/mockups/educhime/educhime_1.png";
-import educhime2 from "./assets/mockups/educhime/educhime_2.png";
-import educhimeProfile from "./assets/mockups/educhime/educhime_profile.png";
+  const isDark = mode === "dark";
 
-const theme = createTheme({
-  typography: {
-    fontFamily: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-  },
-  palette: {
-    mode: "light",
-    text: {
-      primary: "#000",
-    },
-    background: {
-      default: "#fafafa",
-    },
-  },
-});
-
-function App() {
-  const [active, setActive] = useState("Home");
-  const [openContact, setOpenContact] = useState(false);
-
-  const [currentMockup, setCurrentMockup] = useState(0);
-  const [openViewer, setOpenViewer] = useState(false);
-
-  const bandupMockups = [
-    mockupHome,
-    mockupWelcome,
-    mockupS2,
-    mockupS3,
-    mockupS4,
-    mockupS5,
-    mockupS6,
-    mockupS7
-  ];
-  // Handlers for fullscreen mockup viewer
-  const handleOpenViewer = (index: number) => {
-    setCurrentMockup(index);
-    setOpenViewer(true);
+  const toggleTheme = () => {
+    setMode((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  const handleNext = () => {
-    setCurrentMockup((prev) => (prev + 1) % bandupMockups.length);
-  };
+  const theme = useMemo(
+    () =>
+      createTheme({
+        typography: {
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        },
+        palette: {
+          mode: isDark ? "dark" : "light",
+          background: { default: isDark ? "#0f172a" : "#fafafa" },
+          text: {
+            primary: isDark ? "#e2e8f0" : "#0f172a",
+            secondary: isDark ? "#94a3b8" : "#475569",
+          },
+          primary: { main: isDark ? "#5eead4" : "#0f766e" },
+        },
+      }),
+    [isDark]
+  );
 
-  const handlePrev = () => {
-    setCurrentMockup((prev) =>
-      prev === 0 ? bandupMockups.length - 1 : prev - 1
-    );
-  };
+  const [activeSection, setActiveSection] = useState("about");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  const educhimeMockups = [
-    educhimeHome,
-    educhime1,
-    educhime2,
-    educhimeProfile,
-  ];
-
-  const [currentEduchime, setCurrentEduchime] = useState(0);
-  const handleNextEduchime = () => {
-    setCurrentEduchime((prev) => (prev + 1) % educhimeMockups.length);
-  };
-
-  const handlePrevEduchime = () => {
-    setCurrentEduchime((prev) =>
-      prev === 0 ? educhimeMockups.length - 1 : prev - 1
-    );
-  };
-
-  // Refs para las secciones
-  const homeRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
+  const experienceRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
-  const mockupsRef = useRef<HTMLDivElement>(null);
-  const cvRef = useRef<HTMLDivElement>(null);
-
-  const sectionRefs = useMemo<Record<string, React.RefObject<HTMLDivElement | null>>>(() => ({
-    Home: homeRef,
-    About: aboutRef,
-    Projects: projectsRef,
-    Design: mockupsRef,
-    CV: cvRef,
-  }), []);
-
-  const isClickScrollingRef = useRef(false);
+  const uxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const scrollContainer = document.querySelector<HTMLElement>('[data-scroll-container]');
-    if (!scrollContainer) return;
-
-    const handleScroll = () => {
-      if (isClickScrollingRef.current) return; // ignorar scroll programático
-
-      let newActive = active;
-      Object.entries(sectionRefs).forEach(([key, ref]) => {
-        const el = ref.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const containerRect = scrollContainer.getBoundingClientRect();
-        const distance = Math.abs(rect.top - containerRect.top);
-        if (distance < 50) { // margen pequeño para la sección más cercana
-          newActive = key;
-        }
-      });
-
-      if (newActive !== active) {
-        setActive(newActive);
-      }
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
     };
-
-    scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
-    return () => scrollContainer.removeEventListener("scroll", handleScroll);
-  }, [active, sectionRefs]);
-
-  const hasOpenedOnScrollRef = useRef(false);
-
-  useEffect(() => {
-    const scrollContainer = document.querySelector<HTMLElement>('[data-scroll-container]');
-    if (!scrollContainer) return;
-
-    const handleScrollEnd = () => {
-      if (hasOpenedOnScrollRef.current) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
-      if (scrollTop + clientHeight >= scrollHeight - 50) {
-        hasOpenedOnScrollRef.current = true;
-        setOpenContact(true);
-      }
-    };
-
-    scrollContainer.addEventListener("scroll", handleScrollEnd, { passive: true });
-    return () => scrollContainer.removeEventListener("scroll", handleScrollEnd);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  return (
-    <Box
-      sx={{
-        color: "text.primary",
-        height: "100vh",
-        width: "100vw",
-        display: {
-          xs: "block",
-          sm: "block",
-          md: "grid"
-        },
-        gridTemplateColumns: {
-          xs: undefined,
-          sm: undefined,
-          md: "auto 1fr"
-        },
-        backgroundColor: "#fafafa",
-        position: "relative",
-        overflow: "hidden",
-        "&::before": {
-          content: '""',
-          position: "fixed",
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
-          backgroundRepeat: "repeat",
-          animation: "moveBackgroundContinuous 6s linear infinite",
-          pointerEvents: "none",
-          zIndex: 0,
-        },
-        "@keyframes moveBackgroundContinuous": {
-          "0%": { backgroundPosition: "0 0, 0 0" },
-          "100%": { backgroundPosition: "40px 40px, 40px 40px" },
-        },
-      }}
-    >
-      {/* Branding y navbar */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          // Animación del navbar cuando aparece el nombre
-          transition: "transform 0.5s cubic-bezier(0.4,0,0.2,1)",
-          position: {
-            xs: "fixed",
-            sm: "fixed",
-            md: "static"
-          },
-          alignSelf: { xs: "auto", sm: "auto", md: "center" },
-          left: { xs: "50%", sm: "50%", md: "auto" },
-          bottom: { xs: 16, sm: 16, md: "auto" },
-          top: { xs: "auto", sm: "auto", md: "auto" },
-          zIndex: 1201,
-          transformOrigin: { xs: "bottom center", sm: "bottom center", md: "none" },
-          m: { xs: 0, sm: 0, md: 4, lg: 6, xl: 8 },
-          mb: { xs: 2, sm: 2, md: 4, lg: 5, xl: 6 },
-          overscrollBehavior: "contain",
-          width: { xs: "calc(100vw - 32px)", sm: "calc(100vw - 32px)", md: "auto" },
-          px: { xs: 1, sm: 1, md: 0 },
-          maxWidth: { xs: "400px", sm: "450px", md: "none" },
-          transform: {
-            xs: "translateX(-50%)",
-            sm: "translateX(-50%)",
-            md: active !== "Home" ? "translateY(0)" : "translateY(-10px)"
-          },
-        }}
-      >
-        {/* Nombre arriba del navbar, animado al aparecer y desaparecer.
-            Oculto en xs y sm, visible solo en md y mayores */}
-        <Box
-          sx={{
-            overflow: "hidden",
-            minHeight: "32px",
-            display: { xs: "none", sm: "none", md: "flex" },
-            alignItems: "flex-end",
-          }}
-        >
-          <Typography
-            variant="h5"
-            fontWeight={700}
-            sx={{
-              textTransform: "capitalize",
-              mb: 1,
-              fontSize: "1.1rem",
-              alignSelf: "flex-start",
-              opacity: active !== "Home" ? 1 : 0,
-              transform: active !== "Home" ? "translateY(0)" : "translateY(20px)",
-              transition: "opacity 0.5s ease, transform 0.5s ease",
-              pointerEvents: "none",
-              userSelect: "none",
-            }}
-          >
-            Ygnacio Martínez Sánchez
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            alignItems: "flex-start",
-            background: "rgba(255,255,255,0.6)",
-            backdropFilter: "blur(10px)",
-            borderRadius: 3,
-            border: "1px solid rgba(0,0,0,0.08)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-            width: "100%",
-            mt: { xs: 1, sm: 1, md: 0 }
-          }}
-        >
-          <Box
-            sx={{
-              position: "relative",
-              display: "flex",
-              flexDirection: { xs: "row", sm: "row", md: "column" },
-              gap: 1,
-              alignItems: { xs: "center", sm: "center", md: "flex-start" },
-              width: { xs: "100%", sm: "100%", md: "auto" },
-              justifyContent: { xs: "center", sm: "center", md: "flex-start" },
-              overflowX: { xs: "hidden", sm: "hidden", md: "unset" },
-              px: { xs: 1.5, sm: 2, md: 3 },
-              py: 1,
-            }}
-          >
-            {["Home", "About", "Projects", "Design", "CV"].map((item) => (
-              <Button
-                key={item}
-                disableRipple
-                disableFocusRipple
-                onClick={() => {
-                  setActive(item);
-                  const ref = sectionRefs[item];
-                  const scrollContainer = document.querySelector<HTMLElement>('[data-scroll-container]');
-                  if (ref?.current && scrollContainer) {
-                    isClickScrollingRef.current = true;
-                    ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-                    setTimeout(() => {
-                      isClickScrollingRef.current = false;
-                    }, 500);
-                  }
-                }}
-                sx={{
-                  color: active === item ? "#000" : "#444",
-                  fontWeight: 600,
-                  borderRadius: 2,
-                  textAlign: { xs: "center", sm: "center", md: "left" },
-                  position: "relative",
-                  justifyContent: { xs: "center", sm: "center", md: "flex-start" },
-                  minWidth: { xs: "auto", sm: "auto", md: 64 },
-                  width: { xs: "auto", sm: "auto", md: "100%" },
-                  px: { xs: 1.2, sm: 1.5, md: 2 },
-                  transition: "all 0.2s ease",
-                  "&:focus": {
-                    outline: "none",
-                  },
-                  "&.Mui-focusVisible": {
-                    outline: "none",
-                    boxShadow: "none",
-                  },
-                  "&::before": {
-                    content: '""',
-                    position: "absolute",
-                    left: { xs: 4, sm: 4, md: -10 },
-                    top: { xs: "70%", sm: "70%", md: "auto" },
-                    width: 3,
-                    height: active === item ? "70%" : "0%",
-                    background: "#000",
-                    borderRadius: 2,
-                    transition: "all 0.2s ease",
-                    display: { xs: "none", sm: "none", md: "block" },
-                  },
-                  "&:hover": {
-                    background: "rgba(0,0,0,0.06)",
-                  },
-                  "&:active": {
-                    transform: "scale(0.96)",
-                  },
-                }}
-              >
-                {item === "Home" ? (
-                  <>
-                    <HomeIcon sx={{ fontSize: 18, display: { xs: "block", sm: "block", md: "none" } }} />
-                    <Box component="span" sx={{ display: { xs: "none", sm: "none", md: "inline" } }}>Home</Box>
-                  </>
-                ) : item}
-              </Button>
-            ))}
-          </Box>
-        </Box>
-        {/* Social icons: ocupan todo el ancho debajo del navbar en xs/sm */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            mt: 1,
-            alignItems: "center",
-            background: "rgba(255,255,255,0.6)",
-            backdropFilter: "blur(10px)",
-            borderRadius: 3,
-            border: "1px solid rgba(0,0,0,0.08)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-            gap: 1.5,
-            width: "100%",
-            maxWidth: "unset",
-            justifyContent: "center",
-            overflow: "hidden",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              width: "100%",
-              p: 0.5,
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 1.5,
-              maxWidth: "unset",
-            }}
-          >
-            <IconButton
-              component="a"
-              href="mailto:ygnaciomarts@gmail.com"
-              aria-label="Email"
-              sx={{
-                flex: "0 1 auto",
-                color: "#111",
-                fontSize: 24,
-              }}
-            >
-              <MailOutlineIcon />
-            </IconButton>
-            <IconButton
-              component="a"
-              href="https://www.linkedin.com/in/ygnaciomarts/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              sx={{
-                flex: "0 1 auto",
-                color: "#0A66C2",
-                fontSize: 24,
-              }}
-            >
-              <LinkedInIcon />
-            </IconButton>
-            <IconButton
-              component="a"
-              href="https://github.com/ygnaciomarts"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-              sx={{
-                flex: "0 1 auto",
-                color: "#000",
-                fontSize: 24,
-              }}
-            >
-              <GitHubIcon />
-            </IconButton>
-          </Box>
-        </Box>
-      </Box>
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = [
+        { id: "about", ref: aboutRef },
+        { id: "experience", ref: experienceRef },
+        { id: "projects", ref: projectsRef },
+        { id: "ux", ref: uxRef },
+      ];
 
-      {/* Contenido scrollable */}
+      const scrollPos = window.scrollY + 300;
+
+      for (const section of sections) {
+        if (
+          section.ref.current &&
+          section.ref.current.offsetTop <= scrollPos &&
+          section.ref.current.offsetTop + section.ref.current.offsetHeight > scrollPos
+        ) {
+          setActiveSection(section.id);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      window.scrollTo({
+        top: ref.current.offsetTop - 100,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const chipBg = isDark ? "rgba(45, 212, 191, 0.1)" : "rgba(15, 118, 110, 0.08)";
+  const chipText = isDark ? "#5eead4" : "#0f766e";
+  const hoverBg = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.03)";
+  const spotlightColor = isDark ? "rgba(45, 212, 191, 0.10)" : "rgba(15, 118, 110, 0.12)";
+  const gridColor = isDark ? "rgba(255, 255, 255, 0.02)" : "rgba(0, 0, 0, 0.03)";
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+
+      <style>{`
+        .hover-group:hover .hover-item { opacity: 0.4; }
+        .hover-group .hover-item:hover {
+          opacity: 1 !important;
+          background: ${hoverBg};
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+          border-radius: 16px;
+        }
+
+        @keyframes wave {
+          0% { transform: rotate(0.0deg) }
+          10% { transform: rotate(14.0deg) }
+          20% { transform: rotate(-8.0deg) }
+          30% { transform: rotate(14.0deg) }
+          40% { transform: rotate(-4.0deg) }
+          50% { transform: rotate(10.0deg) }
+          60% { transform: rotate(0.0deg) }
+          100% { transform: rotate(0.0deg) }
+        }
+        .waving-hand {
+          display: inline-block;
+          transform-origin: 70% 70%;
+          animation: wave 2.5s infinite;
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up {
+          animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .text-link {
+          color: ${isDark ? "#e2e8f0" : "#0f172a"};
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.2s ease;
+        }
+        .text-link:hover {
+          color: ${chipText};
+        }
+      `}</style>
+
       <Box
-        data-scroll-container
         sx={{
-          gridColumn: { xs: "auto", sm: "auto", md: 2 },
-          height: { xs: "100vh", sm: "100vh", md: "100vh" },
-          overflowY: "auto",
-          display: "grid",
-          gridTemplateColumns: "1fr",
-          justifyContent: "center",
-          px: { xs: 0, sm: 0, md: 1, lg: 3, xl: 5 },
-          // Permitir que el contenido pase por debajo del navbar sticky-bottom/fixed
-          pb: {
-            xs: "calc(120px + env(safe-area-inset-bottom, 0px))",
-            sm: "calc(120px + env(safe-area-inset-bottom, 0px))",
-            md: 0
+          minHeight: "100vh",
+          bgcolor: "background.default",
+          color: "text.primary",
+          position: "relative",
+          "&::before": {
+            content: '""',
+            position: "fixed",
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(${gridColor} 1px, transparent 1px),
+              linear-gradient(90deg, ${gridColor} 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+            backgroundRepeat: "repeat",
+            animation: "moveGrid 8s linear infinite",
+            pointerEvents: "none",
+            zIndex: 0,
+          },
+          "@keyframes moveGrid": {
+            "0%": { backgroundPosition: "0 0, 0 0" },
+            "100%": { backgroundPosition: "40px 40px, 40px 40px" },
           },
         }}
       >
-        <Box>
-          {/* Home/Hero section */}
-          <Box ref={homeRef} sx={{ py: 10, px: 3 }}>
-            {/* Hero: nombre y foto */}
-            <Box
-              sx={{
-                minHeight: "70vh",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 3,
-                textAlign: "center",
-              }}
-            >
-              {/* Nombre grande sobre la foto */}
-              <Typography
-                variant="h4"
-                fontWeight={700}
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            pointerEvents: "none",
+            zIndex: 0,
+            background: `radial-gradient(700px circle at ${mousePos.x}px ${mousePos.y}px, ${spotlightColor}, transparent 80%)`,
+          }}
+        />
+
+        <Box
+          sx={{
+            maxWidth: "1200px",
+            mx: "auto",
+            px: { xs: 2.5, sm: 6, md: 10 },
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: { xs: 3, md: 4 }, // Reducido el gap general en móvil
+            position: "relative",
+            zIndex: 1,
+            alignItems: "flex-start",
+          }}
+        >
+          {/* ================= MITAD IZQUIERDA (FIJA / STICKY) ================= */}
+          <Box
+            component="header"
+            className="animate-fade-up"
+            sx={{
+              position: { md: "sticky" },
+              top: { md: 0 },
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              height: { md: "100vh" },
+              width: { md: "45%" },
+              pt: { xs: 5, md: 12 },
+              pb: { xs: 1, md: 8 }, // Minimizado padding bottom en móvil
+              boxSizing: "border-box",
+            }}
+          >
+            <Box>
+              <Avatar
+                src="/me.jpg"
+                alt="Ygnacio Martínez"
                 sx={{
-                  textTransform: "uppercase",
-                  mb: 2,
-                  textAlign: "center",
-                  letterSpacing: 2,
+                  width: { xs: 80, sm: 96 },
+                  height: { xs: 80, sm: 96 },
+                  mb: { xs: 2, sm: 3 },
+                  border: `2px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                  boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
+                  transition: "transform 0.3s ease",
+                  "&:hover": { transform: "scale(1.05)" }
                 }}
-              >
-                YGNACIO MARTÍNEZ SÁNCHEZ
+              />
+              
+              <Typography variant="h2" fontWeight={800} sx={{ letterSpacing: "-0.03em", fontSize: { xs: "2.2rem", sm: "3.5rem" }, lineHeight: 1.1 }}>
+                Ygnacio Martínez
               </Typography>
-              {/* Foto */}
-              <Box
-                sx={{
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <Avatar
-                  src="/me.jpg"
-                  variant="rounded"
-                  sx={{
-                    width: { xs: 280, sm: 320, md: 380 },
-                    height: { xs: 380, sm: 450, md: 550 },
-                    borderRadius: 4,
-                    position: "relative",
-                    transition: "transform 0.3s ease",
-                    "&:hover": {
-                      transform: "scale(1.03) rotate(0.5deg)",
-                    },
-                    objectFit: "contain",
-                    border: "1.5px solid rgba(0,0,0,0.10)",
-                    boxSizing: "border-box",
-                    backgroundColor: "#fff",
-                    display: "block",
-                  }}
-                />
+              <Typography variant="h6" fontWeight={600} sx={{ mt: 1, mb: 1.5, color: "text.primary", fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                Backend Developer at Métrica Móvil
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: "340px", lineHeight: 1.6 }}>
+                I build scalable architectures, robust APIs, and design systems with a strong foundation in UX/UI.
+              </Typography>
+
+              {/* CORE TECHNOLOGIES */}
+              <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: 0.8, maxWidth: "340px" }}>
+                {["Node.js", "TypeScript", "RESTful APIs", "SQL / NoSQL", "AWS Cloud", "Docker"].map((tech) => (
+                  <Chip
+                    key={tech}
+                    label={tech}
+                    size="small"
+                    sx={{
+                      bgcolor: chipBg,
+                      color: chipText,
+                      fontWeight: 600,
+                      fontSize: "0.72rem",
+                      borderRadius: 99,
+                      border: "none",
+                    }}
+                  />
+                ))}
               </Box>
 
-              {/* Presentación adicional */}
-              <Typography mt={2} sx={{ maxWidth: 600, textAlign: "center", lineHeight: 1.7 }}>
-                Software Engineer Intern at John Deere, where I lead design system migrations and build the UI infrastructure behind manufacturing platforms serving factories worldwide.
-              </Typography>
-              <Typography mt={1} sx={{ opacity: 0.8, maxWidth: 600, textAlign: "center" }}>
-                React · TypeScript · AWS · Fuel Design System · Node.js · Docker · CI/CD
-              </Typography>
-              <Typography mt={1} sx={{ opacity: 0.6, maxWidth: 600, textAlign: "center", fontSize: "0.85rem" }}>
-                3× ICPC Competitor · B.S. Computer Systems Engineering · Graduating July 2026
-              </Typography>
+              {/* NAVEGACIÓN VERTICAL */}
+              <Box sx={{ mt: 5, display: { xs: "none", md: "flex" }, flexDirection: "column", gap: 1.8 }}>
+                {[
+                  { id: "about", label: "ABOUT", ref: aboutRef },
+                  { id: "experience", label: "EXPERIENCE", ref: experienceRef },
+                  { id: "projects", label: "PROJECTS", ref: projectsRef },
+                  { id: "ux", label: "UX & MOCKUPS", ref: uxRef },
+                ].map((item) => (
+                  <Box
+                    key={item.id}
+                    onClick={() => scrollToSection(item.ref)}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      cursor: "pointer",
+                      width: "fit-content",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        height: "1px",
+                        width: activeSection === item.id ? "2.5rem" : "1.2rem",
+                        bgcolor: activeSection === item.id ? "text.primary" : "text.secondary",
+                        transition: "all 0.3s ease",
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      fontWeight={700}
+                      sx={{
+                        letterSpacing: "0.1em",
+                        color: activeSection === item.id ? "text.primary" : "text.secondary",
+                        transition: "all 0.3s ease",
+                      }}
+                    >
+                      {item.label}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
+            {/* REDES SOCIALES & TEMA */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, mt: { xs: 3, md: 0 } }}>
+              <IconButton component="a" href="https://github.com/ygnaciomarts" target="_blank" sx={{ color: "text.secondary", "&:hover": { color: "text.primary" }, p: 0 }}>
+                <GitHubIcon fontSize="small" />
+              </IconButton>
+              <IconButton component="a" href="https://www.linkedin.com/in/ygnaciomarts/" target="_blank" sx={{ color: "text.secondary", "&:hover": { color: "text.primary" }, p: 0 }}>
+                <LinkedInIcon fontSize="small" />
+              </IconButton>
+              <IconButton component="a" href="mailto:ygnaciomarts@gmail.com" sx={{ color: "text.secondary", "&:hover": { color: "text.primary" }, p: 0 }}>
+                <MailIcon fontSize="small" />
+              </IconButton>
+              
+              <Box sx={{ width: "1px", height: "20px", bgcolor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)" }} />
+              
+              <IconButton onClick={toggleTheme} sx={{ color: "text.secondary", "&:hover": { color: "text.primary" }, p: 0 }}>
+                {isDark ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+              </IconButton>
             </Box>
           </Box>
 
-          <Box ref={aboutRef} sx={{ py: 10, px: 3 }}>
-            <Typography
-              variant="h5"
-              fontWeight={700}
-              gutterBottom
-              sx={{ textTransform: "uppercase", letterSpacing: 2, fontSize: "1.2rem" }}
-            >
-              About
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              I’m a Software Engineer Intern at John Deere since August 2024. I work directly with UX designers, product managers, and engineering teams to build and ship digital tools used in real manufacturing production lines.
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              My main contribution has been leading the migration of large-scale manufacturing apps to Fuel Design System v6 — implementing a token-first architecture, replacing hard-coded UI values with semantic design tokens for spacing, color, and shape. I also authored 3 reusable components for the Manufacturing Component Library — purpose-built UI primitives tailored to manufacturing workflows that are now consumed by multiple teams across the organization.
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              Beyond code, I run adoption sessions to help other teams apply design system best practices, and I work closely with UX to translate wireframes and specs into production-ready components. I’ve also improved document upload workflows in a globally used app — enabling reliable handling of large files that previously caused failures.
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              I’m finishing my B.S. in Computer Systems Engineering at Instituto Tecnológico de La Laguna (graduating July 2026). Outside of work, I’ve competed in ICPC three years in a row and participated in a John Deere internal hackathon building a cloud-based assistant on Microsoft’s stack.
-            </Typography>
-            <Box mt={4} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              <Typography sx={{ fontWeight: 600 }}>What I focus on:</Typography>
-              <Typography sx={{ opacity: 0.8 }}>• Design system adoption & token-based theming</Typography>
-              <Typography sx={{ opacity: 0.8 }}>• Reusable component architecture for enterprise teams</Typography>
-              <Typography sx={{ opacity: 0.8 }}>• Translating UX specs into accessible, production-ready UI</Typography>
-              <Typography sx={{ opacity: 0.8 }}>• Cloud services (AWS Lambda, S3, API Gateway) & CI/CD</Typography>
+          {/* ================= MITAD DERECHA ================= */}
+          <Box
+            component="main"
+            className="animate-fade-up"
+            sx={{
+              width: { md: "52%" },
+              pt: { xs: 3, md: "216px" }, // Ajustado para móvil (3) y alineación matemática en escritorio (216px)
+              pb: { xs: 6, md: 12 },
+              animationDelay: "0.15s",
+            }}
+          >
+            {/* ABOUT */}
+            <Box ref={aboutRef} sx={{ mb: { xs: 8, md: 12 }, scrollMarginTop: "100px" }}>
+              <Typography variant="h6" fontWeight={700} sx={{ display: { md: "none" }, mb: 2, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.85rem", color: chipText }}>
+                About
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.7, mb: 2 }}>
+                Hello <span className="waving-hand">👋</span> My interest in software engineering started when I saw how code can solve complex behind-the-scenes problems. Today, my main focus is designing <strong>efficient databases, RESTful APIs, and cloud architectures</strong> that serve as the backbone of stable applications.
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.7, mb: 2 }}>
+                I currently work as a Backend Developer at <a href="#" className="text-link">Métrica Móvil</a>, where I develop server-side logic for high-demand systems. Previously, I thoroughly explored the client side as an Intern at <a href="#" className="text-link">John Deere</a>, leading platform migrations toward <em>Fuel Design System v6</em>, which gave me an immensely valuable perspective on UX, UI, and Design Tokens.
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                Having this blend allows me to design backend architectures that frontend teams love consuming. Additionally, I am passionate about algorithmic efficiency and was a regional competitor in the <strong>ICPC</strong> for 3 consecutive years.
+              </Typography>
             </Box>
-          </Box>
 
-          <Box ref={projectsRef} sx={{ py: 10, px: 3 }}>
-            <Typography
-              variant="h5"
-              fontWeight={700}
-              gutterBottom
-              sx={{ textTransform: "uppercase", letterSpacing: 2, fontSize: "1.2rem" }}
-            >
-              Projects
-            </Typography>
-            <Typography variant="h4" fontWeight={600}>
-              BandUp Shop
-            </Typography>
+            {/* EXPERIENCE */}
+            <Box ref={experienceRef} sx={{ mb: { xs: 8, md: 12 }, scrollMarginTop: "100px" }} className="hover-group">
+              <Typography variant="h6" fontWeight={700} sx={{ display: { md: "none" }, mb: 2, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.85rem", color: chipText }}>
+                Experience
+              </Typography>
 
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              A music-focused e-commerce site built with PHP, HTML, and CSS — my first full project where I handled everything from the visual design to the backend logic. Simple stack, but I owned the entire process: database schema, server-side rendering, layout, and styling.
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              The store supports product browsing by category (vinyl, CDs, merch), a basic cart system with session handling in PHP, and user registration. The catalog pulls dynamically from a MySQL database, and the UI was hand-crafted with vanilla CSS — no frameworks.
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              I also designed the entire visual identity and user interface from scratch: color palette, typography, page layouts, and product card styles. It was a foundational project that taught me how to think about both the user-facing experience and the server-side logic simultaneously.
-            </Typography>
+              {/* Item Métrica Móvil */}
+              <Box className="hover-item" sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 3fr" }, gap: { xs: 1, sm: 2 }, p: { xs: 1.5, sm: 2.5 }, ml: { xs: 0, sm: -2.5 }, mb: 2, transition: "all 0.3s ease", cursor: "default" }}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ pt: 0.5, letterSpacing: 0.5 }}>
+                  2026 — PRESENT
+                </Typography>
+                <Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2, mb: 1, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                    Backend Developer · Métrica Móvil
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 2 }}>
+                    Design and development of backend architectures for production environments. Creation of scalable APIs, database query optimization, and cloud service integration to support data flows for critical applications.
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {["Node.js", "APIs", "SQL", "Cloud Services"].map((tech) => (
+                      <Chip key={tech} label={tech} size="small" sx={{ bgcolor: chipBg, color: chipText, fontWeight: 600, fontSize: "0.75rem", borderRadius: 99, border: "none" }} />
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
 
-            <Box mt={3} sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {["PHP", "HTML", "CSS", "MySQL", "UI Design"].map((tech) => (
-                <Box
-                  key={tech}
-                  sx={{
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: 2,
-                    fontSize: "0.8rem",
-                    fontWeight: 500,
-                    background: "rgba(0,0,0,0.06)",
-                    border: "1px solid rgba(0,0,0,0.08)",
+              {/* Item John Deere */}
+              <Box className="hover-item" sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 3fr" }, gap: { xs: 1, sm: 2 }, p: { xs: 1.5, sm: 2.5 }, ml: { xs: 0, sm: -2.5 }, mb: 2, transition: "all 0.3s ease", cursor: "default" }}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ pt: 0.5, letterSpacing: 0.5 }}>
+                  2024 — 2025
+                </Typography>
+                <Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2, mb: 1, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                    Software Engineer Intern · John Deere
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 2 }}>
+                    Led the migration of manufacturing applications to <em>Fuel Design System v6</em>. Although my current role is backend, I acquired key skills here building enterprise components and documenting UI/UX guidelines consumed internationally.
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {["React", "TypeScript", "Design Tokens", "UX Research"].map((tech) => (
+                      <Chip key={tech} label={tech} size="small" sx={{ bgcolor: chipBg, color: chipText, fontWeight: 600, fontSize: "0.75rem", borderRadius: 99, border: "none" }} />
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Item ICPC */}
+              <Box className="hover-item" sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 3fr" }, gap: { xs: 1, sm: 2 }, p: { xs: 1.5, sm: 2.5 }, ml: { xs: 0, sm: -2.5 }, transition: "all 0.3s ease", cursor: "default" }}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ pt: 0.5, letterSpacing: 0.5 }}>
+                  2022 — 2026
+                </Typography>
+                <Box>
+                  <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2, mb: 1, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                    B.S. in Computer Systems Engineering
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                    Instituto Tecnológico de La Laguna (TecNM). 3 consecutive years participating in ICPC competitive programming contests.
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* BOTÓN DE CV */}
+              <Box sx={{ mt: 4 }}>
+                <Button
+                  component="a"
+                  href={cv}
+                  target="_blank"
+                  rel="noreferrer"
+                  variant="contained"
+                  disableElevation
+                  endIcon={<OpenInNewIcon sx={{ fontSize: 16 }} />}
+                  sx={{ 
+                    textTransform: "none", 
+                    bgcolor: "text.primary", 
+                    color: "background.default", 
+                    borderRadius: 99, 
+                    px: 3, 
+                    py: 0.8, 
+                    fontWeight: 700,
+                    fontSize: "0.85rem",
+                    transition: "transform 0.2s ease",
+                    "&:hover": { bgcolor: "text.primary", transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.1)" }
                   }}
                 >
-                  {tech}
-                </Box>
-              ))}
+                  View Full Resume
+                </Button>
+              </Box>
             </Box>
 
-            <Box
-              sx={{
-                mt: 3,
-                width: "100%",
-                height: { xs: "50vh", md: "70vh" },
-                borderRadius: 3,
-                overflow: "hidden",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                border: "1px solid rgba(0,0,0,0.08)",
-                background: "#fff",
-                position: "relative",
-              }}
-            >
-              <Button
-                component="a"
-                href="https://bandup.ygnaciomarts.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  position: "absolute",
-                  top: 16,
-                  right: 16,
-                  zIndex: 10,
-                  background: "rgba(255,255,255,0.6)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-                  borderRadius: 2,
-                  color: "#000",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 2,
-                  py: 0.8,
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    background: "rgba(255,255,255,0.85)",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
-                    transform: "translateY(-1px)",
-                  },
-                }}
-              >
-                Open in new tab ↗
-              </Button>
-              <iframe
-                src="https://bandup.ygnaciomarts.com"
-                title="BandUp Shop Live Preview"
-                width="100%"
-                height="100%"
-                style={{ border: "none" }}
-              />
-            </Box>
-            </Box>
+            {/* PROJECTS DEV */}
+            <Box ref={projectsRef} sx={{ mb: { xs: 8, md: 12 }, scrollMarginTop: "100px" }} className="hover-group">
+              <Typography variant="h6" fontWeight={700} sx={{ display: { md: "none" }, mb: 2, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.85rem", color: chipText }}>
+                Projects
+              </Typography>
 
-            <Box ref={projectsRef} sx={{ py: 10, px: 3, pt: 0 }}>
-            <Typography variant="h4" fontWeight={600}>
-              BandUp Shop 2.0
-            </Typography>
-
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              A modern music e-commerce platform built with React, Vite, and Material-UI — a complete rewrite of my original PHP project, now featuring a responsive SPA architecture deployed on Vercel. This version showcases modern frontend development with component-based architecture, state management, and optimized performance.
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              The store supports advanced product browsing with real-time search and filtering, a sophisticated cart system with React Context, user authentication with JWT tokens, and admin dashboard functionality. The catalog integrates with a REST API backend, featuring lazy loading, optimistic updates, and a polished UI built with Material-UI components.
-            </Typography>
-            <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-              I designed the entire user experience from scratch: modern color palette, typography system, responsive layouts, and interactive components. This project demonstrates full-stack JavaScript development, API integration, deployment automation, and modern web development best practices.
-            </Typography>
-
-            <Box
-              sx={{
-                mt: 3,
-                width: "100%",
-                height: { xs: "50vh", md: "70vh" },
-                borderRadius: 3,
-                overflow: "hidden",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                border: "1px solid rgba(0,0,0,0.08)",
-                background: "#fff",
-                position: "relative",
-              }}
-            >
-              <Button
+              {/* BandUp 2.0 */}
+              <Box
                 component="a"
                 href="https://new-bandup.ygnaciomarts.com"
                 target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  position: "absolute",
-                  top: 16,
-                  right: 16,
-                  zIndex: 10,
-                  background: "rgba(255,255,255,0.6)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-                  borderRadius: 2,
-                  color: "#000",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 2,
-                  py: 0.8,
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    background: "rgba(255,255,255,0.85)",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
-                    transform: "translateY(-1px)",
-                  },
-                }}
+                className="hover-item"
+                sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 3fr" }, gap: { xs: 1.5, sm: 2 }, p: { xs: 1.5, sm: 2.5 }, ml: { xs: 0, sm: -2.5 }, mb: 2, transition: "all 0.3s ease", textDecoration: "none" }}
               >
-                Open in new tab ↗
-              </Button>
-              <iframe
-                src="https://new-bandup.ygnaciomarts.com"
-                title="BandUp Shop Live Preview"
-                width="100%"
-                height="100%"
-                style={{ border: "none" }}
-              />
-            </Box>
-          </Box>
-
-
-          <Box ref={mockupsRef} sx={{ py: 10, px: 3 }}>
-            <Typography
-              variant="h5"
-              fontWeight={700}
-              gutterBottom
-              sx={{ textTransform: "uppercase", letterSpacing: 2, fontSize: "1.2rem" }}
-            >
-              Design
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <Box>
-                <Typography variant="h4" fontWeight={600}>
-                  BandUp Music
-                </Typography>
-
-                <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-                  Complete product design of a music streaming platform — covering information architecture, user flows, interaction design, and high-fidelity UI mockups delivered in Figma with a fully documented component system.
-                </Typography>
-                <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-                  I designed the full navigation hierarchy, artist and album detail cards, the persistent music player, queue management, and multi-step search flows with contextual results. Every screen follows a documented spacing scale, type ramp, and color system — engineered so any developer can implement pixel-perfect layouts without interpretation.
-                </Typography>
-                <Typography mt={2} sx={{ lineHeight: 1.8 }}>
-                  The project includes a comprehensive style guide with production-ready HTML/CSS patterns, grid specifications, responsive breakpoints, and component anatomy diagrams. It's structured not just as a reference, but as a living document that explains the reasoning behind each design decision.
-                </Typography>
-
-                {/* Slidecase */}
-                <Box
-                  sx={{
-                    mt: 3,
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2
-                  }}
-                >
-                  {/* Image */}
-                  <Box
-                    onClick={() => handleOpenViewer(currentMockup)}
-                    sx={{
-                      position: "relative",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      cursor: "pointer",
-                      width: "100%",
-                      // minHeight removed from outer container
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        position: "relative",
-                        width: "100%",
-                        maxWidth: "100%",
-                        display: "block"
-                      }}
-                    >
-                      {/* Ghost image to stabilize container height and width */}
-                      <Box
-                        component="img"
-                        src={bandupMockups[currentMockup]}
-                        alt="sizer"
-                        sx={{
-                          width: "100%",
-                          height: "auto",
-                          opacity: 0,
-                          pointerEvents: "none",
-                          userSelect: "none",
-                        }}
-                      />
-                      {bandupMockups.map((src, idx) => (
-                        <Box
-                          component="img"
-                          key={idx}
-                          src={src}
-                          alt="BandUp preview"
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "auto",
-                            objectFit: "contain",
-                            borderRadius: 2,
-                            boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                            opacity: idx === currentMockup ? 1 : 0,
-                            transition: "opacity 0.3s ease"
-                          }}
-                        />
-                      ))}
-                      <IconButton
-                        onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                        sx={{
-                          position: "absolute",
-                          left: 16,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(255,255,255,0.45)",
-                          backdropFilter: "blur(12px)",
-                          color: "#000",
-                          width: 44,
-                          height: 44,
-                          border: "1px solid rgba(0,0,0,0.08)",
-                          boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            background: "rgba(255,255,255,0.7)",
-                            transform: "translateY(-50%) scale(1.05)"
-                          }
-                        }}
-                      >
-                        <ArrowBackIosNewIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                        sx={{
-                          position: "absolute",
-                          right: 16,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(255,255,255,0.45)",
-                          backdropFilter: "blur(12px)",
-                          color: "#000",
-                          width: 44,
-                          height: 44,
-                          border: "1px solid rgba(0,0,0,0.08)",
-                          boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            background: "rgba(255,255,255,0.7)",
-                            transform: "translateY(-50%) scale(1.05)"
-                          }
-                        }}
-                      >
-                        <ArrowForwardIosIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  </Box>
+                <Box sx={{ pt: 0.5 }}>
+                  <img src="/me.jpg" style={{ width: "100%", borderRadius: "6px", opacity: isDark ? 0.6 : 0.9, filter: "grayscale(50%)", border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }} alt="Project Thumbnail" />
                 </Box>
-
-                {/* BandUp Guide (CV-style layout) */}
-                <Box
-                  sx={{
-                    mt: 4,
-                    width: "100%",
-                    display: "grid",
-                    gridTemplateColumns: { xs: "1fr", md: "1.2fr 0.8fr" },
-                    gap: 3,
-                    alignItems: "stretch",
-                  }}
-                >
-                  {/* PDF */}
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: { xs: "60vh", md: "80vh" },
-                      display: "flex",
-                      borderRadius: 4,
-                      overflow: "hidden",
-                      background: "rgba(255,255,255,0.6)",
-                      backdropFilter: "blur(10px)",
-                      border: "1px solid rgba(0,0,0,0.08)",
-                      boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                      p: 1.5,
-                    }}
-                  >
-                    <Box sx={{ width: "100%", borderRadius: 2.5, overflow: "hidden", background: "#fff" }}>
-                      <iframe
-                        src={`${bandupGuide}#toolbar=0&view=FitH`}
-                        title="BandUp Guide"
-                        width="100%"
-                        height="100%"
-                        style={{ border: "none" }}
-                      />
-                    </Box>
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <Typography variant="h6" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.2, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                      BandUp Shop 2.0
+                    </Typography>
+                    <OpenInNewIcon sx={{ fontSize: 14, color: "text.primary" }} />
                   </Box>
-
-                  {/* Text */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      gap: 2,
-                      px: { md: 2 }
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      fontWeight={700}
-                      gutterBottom
-                      sx={{ textTransform: "uppercase", letterSpacing: 2, fontSize: "1.2rem" }}
-                    >
-                      Guidelines
-                    </Typography>
-
-                    <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
-                      A structured design reference covering the grid system, 8px spacing scale, color tokens, typography hierarchy, and reusable component patterns that govern BandUp Music's visual language.
-                    </Typography>
-
-                    <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
-                      Includes production-ready HTML/CSS code snippets, responsive layout recipes, interaction state definitions, and annotated rationale behind every pattern — built for handoff to engineering teams.
-                    </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 2 }}>
+                    Complete rewrite to a Single Page Application. Includes secure JSON Web Token authentication, global shopping cart management, a dynamic product catalog, and a real-time admin dashboard.
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {["React", "Vite", "Material-UI", "JWT Auth"].map((tech) => (
+                      <Chip key={tech} label={tech} size="small" sx={{ bgcolor: chipBg, color: chipText, fontWeight: 600, fontSize: "0.75rem", borderRadius: 99, border: "none" }} />
+                    ))}
                   </Box>
                 </Box>
               </Box>
 
-              {/* EduChime */}
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                <Typography variant="h4" fontWeight={600}>
-                  EduChime
-                </Typography>
-
-                <Typography sx={{ opacity: 0.85, lineHeight: 1.8 }}>
-                  A mobile-first academic reminder app with a visual identity inspired by Just Dance 2019 — vibrant gradients, bold typography, and high-energy color pairings adapted into a functional productivity context. Built to the professor's requirements but with a distinct personality.
-                </Typography>
-                <Typography mt={2} sx={{ opacity: 0.85, lineHeight: 1.8 }}>
-                  The core UX goal was speed: a 2-tap flow to create a new reminder, a semester-aware calendar view, push notifications timed to the student's schedule, and a profile with completion history. Every interaction was designed to minimize friction for someone checking their phone between classes.
-                </Typography>
-                <Typography mt={2} sx={{ opacity: 0.85, lineHeight: 1.8 }}>
-                  The visual design balances the energetic Just Dance aesthetic with readability and clarity — bold enough to feel engaging, restrained enough that a stressed student can scan what's due in under 3 seconds without visual overload.
-                </Typography>
-
-                <Box
-                  sx={{
-                    mt: 2,
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2
-                  }}
-                >
-                  <Box
-                    sx={{
-                      position: "relative",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        position: "relative",
-                        width: "100%",
-                        display: "block"
-                      }}
-                    >
-                      {/* Ghost */}
-                      <Box
-                        component="img"
-                        src={educhimeMockups[currentEduchime]}
-                        sx={{
-                          width: "100%",
-                          height: "auto",
-                          opacity: 0
-                        }}
-                      />
-
-                      {educhimeMockups.map((src, idx) => (
-                        <Box
-                          component="img"
-                          key={idx}
-                          src={src}
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "auto",
-                            objectFit: "contain",
-                            borderRadius: 2,
-                            boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-                            opacity: idx === currentEduchime ? 1 : 0,
-                            transition: "opacity 0.3s ease"
-                          }}
-                        />
-                      ))}
-
-                      <IconButton
-                        onClick={handlePrevEduchime}
-                        sx={{
-                          position: "absolute",
-                          left: 16,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(255,255,255,0.45)",
-                          backdropFilter: "blur(12px)",
-                          border: "1px solid rgba(0,0,0,0.08)",
-                        }}
-                      >
-                        <ArrowBackIosNewIcon fontSize="small" />
-                      </IconButton>
-
-                      <IconButton
-                        onClick={handleNextEduchime}
-                        sx={{
-                          position: "absolute",
-                          right: 16,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          background: "rgba(255,255,255,0.45)",
-                          backdropFilter: "blur(12px)",
-                          border: "1px solid rgba(0,0,0,0.08)",
-                        }}
-                      >
-                        <ArrowForwardIosIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-
-            </Box>
-          </Box>
-
-          <Box ref={cvRef} sx={{ py: 10, px: 3 }}>
-            <Box
-              sx={{
-                mt: 3,
-                width: "100%",
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "1.2fr 0.8fr" },
-                gap: 3,
-                alignItems: "stretch",
-              }}
-            >
+              {/* BandUp v1 */}
               <Box
-                sx={{
-                  width: '100%',
-                  height: { xs: "60vh", md: "80vh" },
-                  display: "flex",
-                  borderRadius: 4,
-                  overflow: "hidden",
-                  background: "rgba(255,255,255,0.6)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                  p: 1.5,
-                }}
+                component="a"
+                href="https://bandup.ygnaciomarts.com"
+                target="_blank"
+                className="hover-item"
+                sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 3fr" }, gap: { xs: 1.5, sm: 2 }, p: { xs: 1.5, sm: 2.5 }, ml: { xs: 0, sm: -2.5 }, transition: "all 0.3s ease", textDecoration: "none" }}
               >
-                <Box sx={{ width: "100%", borderRadius: 2.5, overflow: "hidden", background: "#fff" }}>
-                  <iframe
-                    src={`${cv}#toolbar=0&view=FitH`}
-                    title="CV Preview"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 'none' }}
-                  />
+                <Box sx={{ pt: 0.5 }}>
+                  <img src="/me.jpg" style={{ width: "100%", borderRadius: "6px", opacity: isDark ? 0.6 : 0.9, filter: "grayscale(50%)", border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }} alt="Project Thumbnail" />
                 </Box>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  gap: 2,
-                  px: { md: 2 }
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  fontWeight={700}
-                  gutterBottom
-                  sx={{ textTransform: "uppercase", letterSpacing: 2, fontSize: "1.2rem" }}
-                >
-                  Resume
-                </Typography>
-                <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
-                  Covers my professional experience leading design system migrations and building enterprise UI at John Deere, alongside independent full-stack and UX design projects that demonstrate end-to-end product thinking.
-                </Typography>
-                <Typography sx={{ opacity: 0.8, lineHeight: 1.8 }}>
-                  Also includes three years of ICPC competitive programming, a hackathon-winning cloud assistant project, and technical depth across React, TypeScript, AWS, Docker, Kubernetes, and CI/CD automation.
-                </Typography>
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <Typography variant="h6" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.2, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                      BandUp Shop (v1.0)
+                    </Typography>
+                    <OpenInNewIcon sx={{ fontSize: 14, color: "text.primary" }} />
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 2 }}>
+                    Legacy monolithic version built from scratch. MySQL relational database modeling, server-side processing with PHP, secure sessions, and custom responsive layout.
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {["PHP", "MySQL", "Vanilla CSS"].map((tech) => (
+                      <Chip key={tech} label={tech} size="small" sx={{ bgcolor: chipBg, color: chipText, fontWeight: 600, fontSize: "0.75rem", borderRadius: 99, border: "none" }} />
+                    ))}
+                  </Box>
+                </Box>
               </Box>
             </Box>
-          </Box>
 
-          {/* Modal BandUp mockup viewer */}
-          <Dialog
-            open={openViewer}
-            onClose={() => setOpenViewer(false)}
-            maxWidth="lg"
-            fullWidth
-            PaperProps={{
-              sx: {
-                background: "transparent",
-                boxShadow: "none",
-                borderRadius: 0,
-              }
-            }}
-          >
-            <DialogContent
-              sx={{
-                p: { xs: 2, md: 4 },
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-                minHeight: { xs: "50vh", md: "60vh" },
-                maxHeight: "85vh",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
+            {/* UX / MOCKUPS */}
+            <Box ref={uxRef} sx={{ scrollMarginTop: "100px" }} className="hover-group">
+              <Typography variant="h6" fontWeight={700} sx={{ display: { md: "none" }, mb: 2, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.85rem", color: chipText }}>
+                UX & Mockups
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.7, mb: 4 }}>
+                My background developing design systems gave me the tools to create prototypes and wireframes before writing code. Understanding design makes me a better Backend Developer.
+              </Typography>
+
+              {/* EduChime Mockup */}
               <Box
-                component="img"
-                src={bandupMockups[currentMockup]}
-                sx={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  objectFit: "contain",
-                  borderRadius: 2,
-                }}
-              />
-
-              {/* Close button (top right) */}
-              <IconButton
-                onClick={() => setOpenViewer(false)}
-                sx={{
-                  position: "absolute",
-                  top: 16,
-                  right: 16,
-                  background: "rgba(255,255,255,0.4)",
-                  backdropFilter: "blur(10px)",
-                  color: "#000",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  "&:hover": {
-                    background: "rgba(255,255,255,0.7)",
-                  }
-                }}
+                className="hover-item"
+                sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 3fr" }, gap: { xs: 1.5, sm: 2 }, p: { xs: 1.5, sm: 2.5 }, ml: { xs: 0, sm: -2.5 }, mb: 2, transition: "all 0.3s ease", cursor: "pointer" }}
               >
-                <CloseIcon />
-              </IconButton>
-
-              {/* Prev */}
-              <IconButton
-                onClick={handlePrev}
-                sx={{
-                  position: "absolute",
-                  left: 12,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "rgba(255,255,255,0.5)",
-                  backdropFilter: "blur(10px)",
-                  color: "#000",
-                  width: 48,
-                  height: 48,
-                  transition: "transform 0.15s cubic-bezier(.4,2,.6,1)",
-                  "&:hover": {
-                    background: "rgba(255,255,255,0.7)",
-                    transform: "translateY(-50%) scale(1.05)"
-                  }
-                }}
-              >
-                <ArrowBackIosNewIcon fontSize="small" />
-              </IconButton>
-
-              {/* Next */}
-              <IconButton
-                onClick={handleNext}
-                sx={{
-                  position: "absolute",
-                  right: 12,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "rgba(255,255,255,0.5)",
-                  backdropFilter: "blur(10px)",
-                  color: "#000",
-                  width: 48,
-                  height: 48,
-                  transition: "transform 0.15s cubic-bezier(.4,2,.6,1)",
-                  "&:hover": {
-                    background: "rgba(255,255,255,0.7)",
-                    transform: "translateY(-50%) scale(1.05)"
-                  }
-                }}
-              >
-                <ArrowForwardIosIcon fontSize="small" />
-              </IconButton>
-
-              {/* Index indicator */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: 12,
-                  right: 12,
-                  color: "#000",
-                  fontSize: "0.9rem",
-                  opacity: 0.5,
-                  fontWeight: 500
-                }}
-              >
-                {currentMockup + 1} / {bandupMockups.length}
+                <Box sx={{ pt: 0.5 }}>
+                  <Box sx={{ width: "100%", aspectRatio: "16/9", bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
+                    <DesignServicesIcon sx={{ color: "text.secondary", opacity: 0.5 }} />
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography variant="h6" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.2, mb: 1, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                    EduChime - UI/UX Prototype
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 2 }}>
+                    Interface design and interactive wireframing for an educational platform. Conceptualization of user flows, information architecture, and high-fidelity prototyping.
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {["Figma", "Wireframing", "User Flows", "Prototyping"].map((tech) => (
+                      <Chip key={tech} label={tech} size="small" sx={{ bgcolor: chipBg, color: chipText, fontWeight: 600, fontSize: "0.75rem", borderRadius: 99, border: "none" }} />
+                    ))}
+                  </Box>
+                </Box>
               </Box>
-            </DialogContent>
-          </Dialog>
+
+              {/* Fuel UI Mockup */}
+              <Box
+                className="hover-item"
+                sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 3fr" }, gap: { xs: 1.5, sm: 2 }, p: { xs: 1.5, sm: 2.5 }, ml: { xs: 0, sm: -2.5 }, transition: "all 0.3s ease", cursor: "pointer" }}
+              >
+                <Box sx={{ pt: 0.5 }}>
+                  <Box sx={{ width: "100%", aspectRatio: "16/9", bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` }}>
+                    <DesignServicesIcon sx={{ color: "text.secondary", opacity: 0.5 }} />
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography variant="h6" fontWeight={700} color="text.primary" sx={{ lineHeight: 1.2, mb: 1, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+                    Fuel UI - Token Architecture
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, mb: 2 }}>
+                    Structuring Design Tokens in Figma to maintain consistency between design and development teams. Documentation of usage guidelines for colors, spacing, and typography.
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {["Figma", "Design Tokens", "Design System"].map((tech) => (
+                      <Chip key={tech} label={tech} size="small" sx={{ bgcolor: chipBg, color: chipText, fontWeight: 600, fontSize: "0.75rem", borderRadius: 99, border: "none" }} />
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 }
 
 export default function Root() {
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
-  );
+  return <Portfolio />;
 }

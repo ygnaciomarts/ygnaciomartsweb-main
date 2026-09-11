@@ -1,0 +1,489 @@
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Button,
+  IconButton,
+  Chip,
+  Dialog,
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+} from "@mui/material";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
+import CodeIcon from "@mui/icons-material/Code";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import CloseIcon from "@mui/icons-material/Close";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import TerminalIcon from "@mui/icons-material/Terminal";
+
+import cv from "./assets/cv-public.pdf";
+
+// --- TEMA VERCEL / RAYCAST (HIGH CONTRAST, CLEAN) ---
+const theme = createTheme({
+  typography: {
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  },
+  palette: {
+    mode: "light",
+    background: { default: "#fafafa" },
+    text: { primary: "#111111", secondary: "#666666" },
+  },
+});
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState("profile");
+  const [activeIframe, setActiveIframe] = useState<{ title: string; url: string } | null>(null);
+
+  // Datos para la navegación lateral
+  const tabs = [
+    { id: "profile", label: "Overview", icon: <PersonOutlineIcon fontSize="small" /> },
+    { id: "experience", label: "Experience", icon: <WorkOutlineIcon fontSize="small" /> },
+    { id: "projects", label: "Projects", icon: <CodeIcon fontSize="small" /> },
+    { id: "resume", label: "Resume (PDF)", icon: <ArticleOutlinedIcon fontSize="small" /> },
+  ];
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      
+      {/* CONTENEDOR MAESTRO (BACKGROUND Y CENTRADO) */}
+      <Box
+        sx={{
+          height: "100vh",
+          width: "100vw",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          overflow: "hidden",
+          backgroundColor: "#fafafa",
+          // FONDO ANIMADO DE CUADRÍCULA
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)
+            `,
+            backgroundSize: "40px 40px",
+            backgroundRepeat: "repeat",
+            animation: "moveGrid 8s linear infinite",
+            pointerEvents: "none",
+            zIndex: 0,
+          },
+          "@keyframes moveGrid": {
+            "0%": { backgroundPosition: "0 0, 0 0" },
+            "100%": { backgroundPosition: "40px 40px, 40px 40px" },
+          },
+        }}
+      >
+        {/* VENTANA TIPO APLICACIÓN NATIVA (COMMAND CENTER) */}
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "960px",
+            height: "650px", // Altura fija como una app de escritorio
+            maxHeight: "90vh",
+            mx: 2,
+            bgcolor: "#ffffff",
+            borderRadius: 3,
+            border: "1px solid #eaeaea",
+            boxShadow: "0 30px 60px -20px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.02)",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            zIndex: 1,
+            overflow: "hidden",
+          }}
+        >
+          {/* HEADER DE LA VENTANA TIPO MAC / IDE */}
+          <Box
+            sx={{
+              height: 48,
+              borderBottom: "1px solid #eaeaea",
+              display: "flex",
+              alignItems: "center",
+              px: 2,
+              justifyContent: "space-between",
+              bgcolor: "#fafafa",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ display: "flex", gap: 0.8, mr: 2 }}>
+                <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#ff5f56" }} />
+                <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#ffbd2e" }} />
+                <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: "#27c93f" }} />
+              </Box>
+              <TerminalIcon sx={{ fontSize: 16, color: "#888" }} />
+              <Typography variant="caption" sx={{ fontFamily: "monospace", color: "#666", fontWeight: 600 }}>
+                ygnacio-martinez/portfolio ~ main
+              </Typography>
+            </Box>
+
+            {/* Redes Sociales en el Header */}
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <IconButton component="a" href="https://github.com/ygnaciomarts" target="_blank" size="small" sx={{ p: 0.5, color: "#666", "&:hover": { color: "#000" } }}>
+                <GitHubIcon fontSize="small" />
+              </IconButton>
+              <IconButton component="a" href="https://www.linkedin.com/in/ygnaciomarts/" target="_blank" size="small" sx={{ p: 0.5, color: "#666", "&:hover": { color: "#0077b5" } }}>
+                <LinkedInIcon fontSize="small" />
+              </IconButton>
+              <IconButton component="a" href="mailto:ygnaciomarts@gmail.com" size="small" sx={{ p: 0.5, color: "#666", "&:hover": { color: "#000" } }}>
+                <AlternateEmailIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </Box>
+
+          {/* CUERPO DIVIDIDO: SIDEBAR + CONTENIDO (SPLIT PANE) */}
+          <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
+            
+            {/* PANEL IZQUIERDO: MENÚ DE NAVEGACIÓN */}
+            <Box
+              sx={{
+                width: "240px",
+                flexShrink: 0,
+                borderRight: "1px solid #eaeaea",
+                bgcolor: "#fafafa",
+                p: 2,
+                display: { xs: "none", sm: "flex" },
+                flexDirection: "column",
+                gap: 0.5,
+              }}
+            >
+              <Typography variant="caption" sx={{ px: 1.5, pb: 1, fontWeight: 700, color: "#999", letterSpacing: 0.5 }}>
+                MENU
+              </Typography>
+              {tabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  disableRipple
+                  onClick={() => setActiveTab(tab.id)}
+                  startIcon={tab.icon}
+                  sx={{
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                    color: activeTab === tab.id ? "#000" : "#666",
+                    fontWeight: activeTab === tab.id ? 600 : 500,
+                    bgcolor: activeTab === tab.id ? "#ebebeb" : "transparent",
+                    borderRadius: 1.5,
+                    px: 1.5,
+                    py: 0.8,
+                    fontSize: "0.85rem",
+                    "&:hover": { bgcolor: activeTab === tab.id ? "#ebebeb" : "#f2f2f2" },
+                  }}
+                >
+                  {tab.label}
+                </Button>
+              ))}
+
+              <Box sx={{ mt: "auto", pt: 2, px: 1.5 }}>
+                <Typography variant="caption" sx={{ display: "block", color: "#999", fontWeight: 600 }}>
+                  STATUS
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "#0070f3" }} />
+                  <Typography variant="caption" fontWeight={600} color="#333">
+                    Available for Work
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* PANEL DERECHO: CONTENIDO DINÁMICO */}
+            <Box
+              sx={{
+                flexGrow: 1,
+                overflowY: "auto",
+                p: { xs: 3, md: 5 },
+                bgcolor: "#ffffff",
+              }}
+            >
+              
+              {/* VISTA 1: OVERVIEW (PROFILE) */}
+              {activeTab === "profile" && (
+                <Box sx={{ animation: "fadeIn 0.3s ease" }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
+                    <Avatar
+                      src="/me.jpg"
+                      variant="rounded"
+                      sx={{ width: 80, height: 80, borderRadius: 2, border: "1px solid #eaeaea" }}
+                    />
+                    <Box>
+                      <Typography variant="h4" fontWeight={800} letterSpacing="-0.03em">
+                        Ygnacio Martínez
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontFamily: "monospace", fontSize: "0.8rem" }}>
+                        Software Engineer @ MM · Torreón, MX
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="body1" sx={{ color: "#333", lineHeight: 1.7, mb: 4 }}>
+                    Ingeniero de Software enfocado en la construcción de <b>infraestructura UI</b>, <b>Design Systems</b> y arquitecturas Frontend de alto rendimiento. Especializado en el ecosistema React, TypeScript y herramientas de tooling moderno para escalar productos empresariales.
+                  </Typography>
+
+                  <Typography variant="caption" fontWeight={700} color="#888" letterSpacing={1} sx={{ mb: 2, display: "block" }}>
+                    CORE STACK
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 5 }}>
+                    {["React", "TypeScript", "Node.js", "Vite", "Material-UI", "AWS", "Docker", "Figma"].map((tech) => (
+                      <Chip
+                        key={tech}
+                        label={tech}
+                        size="small"
+                        sx={{
+                          bgcolor: "#fafafa",
+                          border: "1px solid #eaeaea",
+                          color: "#111",
+                          fontWeight: 600,
+                          fontFamily: "monospace",
+                          borderRadius: 1.5,
+                        }}
+                      />
+                    ))}
+                  </Box>
+
+                  <Typography variant="caption" fontWeight={700} color="#888" letterSpacing={1} sx={{ mb: 2, display: "block" }}>
+                    QUICK FACTS
+                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <CheckCircleOutlineIcon sx={{ color: "#0070f3", fontSize: 18 }} />
+                      <Typography variant="body2" fontWeight={500}><b>3× Finalista ICPC</b> compitiendo en resolución algorítmica.</Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <CheckCircleOutlineIcon sx={{ color: "#0070f3", fontSize: 18 }} />
+                      <Typography variant="body2" fontWeight={500}>Líder en migración a <b>Design Tokens</b> para manufactura.</Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <CheckCircleOutlineIcon sx={{ color: "#0070f3", fontSize: 18 }} />
+                      <Typography variant="body2" fontWeight={500}>Próxima graduación B.S. en Sistemas <b>(Julio 2026)</b>.</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+
+              {/* VISTA 2: EXPERIENCE (LISTA ESTILO VERCEL) */}
+              {activeTab === "experience" && (
+                <Box sx={{ animation: "fadeIn 0.3s ease" }}>
+                  <Typography variant="h5" fontWeight={800} letterSpacing="-0.02em" mb={4}>
+                    Experience
+                  </Typography>
+
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    
+                    {/* Item MM */}
+                    <Box sx={{ pb: 3, borderBottom: "1px solid #eaeaea" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight={700}>Software Engineer</Typography>
+                          <Typography variant="body2" color="#666">MM</Typography>
+                        </Box>
+                        <Chip label="2026 - Present" size="small" sx={{ bgcolor: "#f2f2f2", color: "#666", fontWeight: 600, fontSize: "0.7rem", fontFamily: "monospace" }} />
+                      </Box>
+                      <Typography variant="body2" sx={{ color: "#444", lineHeight: 1.6 }}>
+                        Desarrollo de software en entorno de producción. Mantenimiento y optimización de arquitectura Frontend, creación de interfaces de alto rendimiento y soporte directo a infraestructura clave.
+                      </Typography>
+                    </Box>
+
+                    {/* Item John Deere */}
+                    <Box sx={{ pb: 3, borderBottom: "1px solid #eaeaea" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight={700}>Software Engineer Intern</Typography>
+                          <Typography variant="body2" color="#666">John Deere</Typography>
+                        </Box>
+                        <Chip label="2024 - 2025" size="small" sx={{ bgcolor: "#fafafa", border: "1px solid #eaeaea", color: "#666", fontWeight: 600, fontSize: "0.7rem", fontFamily: "monospace" }} />
+                      </Box>
+                      <Typography variant="body2" sx={{ color: "#444", lineHeight: 1.6 }}>
+                        Lideré la migración de aplicaciones internas hacia <strong>Fuel Design System v6</strong>. Implementación de una arquitectura basada en Design Tokens y desarrollo de 3 componentes reutilizables consumidos globalmente por equipos de manufactura.
+                      </Typography>
+                    </Box>
+
+                    {/* Item Education */}
+                    <Box>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight={700}>B.S. Computer Systems Engineering</Typography>
+                          <Typography variant="body2" color="#666">TecNM / Instituto Tecnológico de La Laguna</Typography>
+                        </Box>
+                        <Chip label="Exp. Jul 2026" size="small" sx={{ bgcolor: "#fafafa", border: "1px solid #eaeaea", color: "#666", fontWeight: 600, fontSize: "0.7rem", fontFamily: "monospace" }} />
+                      </Box>
+                      <Typography variant="body2" sx={{ color: "#444", lineHeight: 1.6 }}>
+                        3 años consecutivos compitiendo en el regional ICPC. Participación destacada en Hackathon corporativo construyendo un asistente Cloud.
+                      </Typography>
+                    </Box>
+
+                  </Box>
+                </Box>
+              )}
+
+              {/* VISTA 3: PROJECTS (LISTA INTERACTIVA) */}
+              {activeTab === "projects" && (
+                <Box sx={{ animation: "fadeIn 0.3s ease" }}>
+                  <Typography variant="h5" fontWeight={800} letterSpacing="-0.02em" mb={4}>
+                    Projects
+                  </Typography>
+
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    
+                    {/* Project 1 */}
+                    <Box
+                      sx={{
+                        p: 3,
+                        borderRadius: 3,
+                        border: "1px solid #eaeaea",
+                        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                        "&:hover": { borderColor: "#ccc", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }
+                      }}
+                    >
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Typography variant="subtitle1" fontWeight={700}>BandUp Shop 2.0</Typography>
+                        <IconButton size="small" onClick={() => setActiveIframe({ title: "BandUp Shop 2.0", url: "https://new-bandup.ygnaciomarts.com" })} sx={{ border: "1px solid #eaeaea", borderRadius: 1.5 }}>
+                          <OpenInNewIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
+                        Reescritura completa a Single Page Application (SPA). Integración de autenticación por JWT, manejo de estado global (Context API), y diseño escalable UI.
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", bgcolor: "#f2f2f2", px: 1, py: 0.3, borderRadius: 1 }}>React</Typography>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", bgcolor: "#f2f2f2", px: 1, py: 0.3, borderRadius: 1 }}>TypeScript</Typography>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", bgcolor: "#f2f2f2", px: 1, py: 0.3, borderRadius: 1 }}>MUI</Typography>
+                      </Box>
+                    </Box>
+
+                    {/* Project 2 */}
+                    <Box
+                      sx={{
+                        p: 3,
+                        borderRadius: 3,
+                        border: "1px solid #eaeaea",
+                        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+                        "&:hover": { borderColor: "#ccc", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }
+                      }}
+                    >
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Typography variant="subtitle1" fontWeight={700}>BandUp Shop v1.0</Typography>
+                        <IconButton size="small" onClick={() => setActiveIframe({ title: "BandUp Shop v1.0", url: "https://bandup.ygnaciomarts.com" })} sx={{ border: "1px solid #eaeaea", borderRadius: 1.5 }}>
+                          <OpenInNewIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
+                        Versión monolítica legacy construida desde cero. Esquema de base de datos relacional (MySQL), procesamiento Server-Side con PHP y sesiones manuales.
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", bgcolor: "#f2f2f2", px: 1, py: 0.3, borderRadius: 1 }}>PHP</Typography>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", bgcolor: "#f2f2f2", px: 1, py: 0.3, borderRadius: 1 }}>MySQL</Typography>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", bgcolor: "#f2f2f2", px: 1, py: 0.3, borderRadius: 1 }}>Vanilla CSS</Typography>
+                      </Box>
+                    </Box>
+
+                  </Box>
+                </Box>
+              )}
+
+              {/* VISTA 4: RESUME (DOCUMENTO EMBEBIDO) */}
+              {activeTab === "resume" && (
+                <Box sx={{ height: "100%", display: "flex", flexDirection: "column", animation: "fadeIn 0.3s ease" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                    <Typography variant="h5" fontWeight={800} letterSpacing="-0.02em">
+                      Resume
+                    </Typography>
+                    <Button
+                      component="a"
+                      href={cv}
+                      target="_blank"
+                      variant="contained"
+                      size="small"
+                      disableElevation
+                      endIcon={<OpenInNewIcon sx={{ fontSize: 14 }} />}
+                      sx={{ textTransform: "none", bgcolor: "#111", color: "#fff", borderRadius: 1.5, px: 2, fontWeight: 600 }}
+                    >
+                      Open PDF
+                    </Button>
+                  </Box>
+                  <Box sx={{ flexGrow: 1, borderRadius: 2, overflow: "hidden", border: "1px solid #eaeaea" }}>
+                    <iframe src={`${cv}#toolbar=0&view=FitH`} title="CV Preview" width="100%" height="100%" style={{ border: "none" }} />
+                  </Box>
+                </Box>
+              )}
+
+            </Box>
+          </Box>
+          
+          {/* BARRA DE NAVEGACIÓN INFERIOR SÓLO PARA MÓVILES */}
+          <Box sx={{ display: { xs: "flex", sm: "none" }, borderTop: "1px solid #eaeaea", bgcolor: "#fafafa", p: 1, justifyContent: "space-around" }}>
+            {tabs.map((tab) => (
+              <IconButton 
+                key={tab.id} 
+                onClick={() => setActiveTab(tab.id)}
+                sx={{ color: activeTab === tab.id ? "#000" : "#999", bgcolor: activeTab === tab.id ? "#ebebeb" : "transparent" }}
+              >
+                {tab.icon}
+              </IconButton>
+            ))}
+          </Box>
+        </Box>
+
+        {/* MODAL PARA PREVISUALIZAR DEMOS DE PROYECTOS */}
+        <Dialog
+          open={Boolean(activeIframe)}
+          onClose={() => setActiveIframe(null)}
+          maxWidth="lg"
+          fullWidth
+          PaperProps={{
+            sx: { borderRadius: 3, overflow: "hidden", height: "80vh" },
+          }}
+        >
+          {activeIframe && (
+            <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+              <Box
+                sx={{
+                  p: 1.5,
+                  px: 2,
+                  bgcolor: "#fafafa",
+                  borderBottom: "1px solid #eaeaea",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography variant="caption" sx={{ fontFamily: "monospace", fontWeight: 600 }}>
+                  {activeIframe.title}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <IconButton component="a" href={activeIframe.url} target="_blank" size="small" sx={{ color: "#666" }}>
+                    <OpenInNewIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton onClick={() => setActiveIframe(null)} size="small" sx={{ color: "#666" }}>
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Box>
+              <Box sx={{ flexGrow: 1, width: "100%" }}>
+                <iframe src={activeIframe.url} title={activeIframe.title} width="100%" height="100%" style={{ border: "none" }} />
+              </Box>
+            </Box>
+          )}
+        </Dialog>
+
+        {/* KEYFRAMES PARA ANIMACIONES DE TABS */}
+        <style>{`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+      </Box>
+    </ThemeProvider>
+  );
+}
