@@ -96,7 +96,7 @@ function Portfolio() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
     if (ref.current) {
       window.scrollTo({
         top: ref.current.offsetTop - 100,
